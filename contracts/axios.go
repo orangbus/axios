@@ -8,6 +8,7 @@ type Axios interface {
 	SetProxy(proxy string) *axios.Axios
 	VerifyHttps(verify bool) *axios.Axios
 	Authorization(auth string) *axios.Axios
+	SetBaseAuth(username, password string) *axios.Axios
 	Dd() map[string]interface{} // 打印请求参数
 
 	Get(base_url string, param map[string]any) ([]byte, error)     // get 请求

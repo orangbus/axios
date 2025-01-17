@@ -20,11 +20,13 @@ type Axios struct {
 	proxy       string
 	httpsVerify bool
 	timeout     int
+	username    string // base auth 认证
+	password    string
 }
 
 func NewAxios() *Axios {
 	axios := Axios{
-		timeout: 30,
+		timeout: 300,
 		headers: map[string]string{
 			"Content-Type": "application/json",
 			"User-Agent":   facades.Config().GetString("axios.user_agent"),
@@ -56,11 +58,17 @@ func (a *Axios) Authorization(token string) *Axios {
 	a.headers["Authorization"] = fmt.Sprintf("Bearer %s", token)
 	return a
 }
+func (a *Axios) SetBaseAuth(username, password string) *Axios {
+	a.username = username
+	a.password = password
+	return a
+}
 func (a *Axios) Get(base_url string, param map[string]any) ([]byte, error) {
 	a.base_url = base_url
 	a.body = param
 	return a.builder("GET")
 }
+
 func (a *Axios) Post(base_url string, param map[string]any) ([]byte, error) {
 	a.base_url = base_url
 	a.body = param
@@ -74,7 +82,7 @@ func (a *Axios) PostForm(base_url string, param map[string]any) ([]byte, error) 
 	return a.builder("POST")
 }
 
-func (a *Axios) Dd() map[string]interface{} {
+func (a *Axios) Dd() map[string]any {
 	body := map[string]interface{}{}
 	body["header"] = a.headers
 	body["body"] = a.body
@@ -125,8 +133,15 @@ func (a *Axios) builder(method string) ([]byte, error) {
 		}
 	}
 
+	if a.username != "" && a.password != "" {
+		req.SetBasicAuth(a.username, a.password)
+	}
+
 	client := &http.Client{Transport: tr, Timeout: time.Duration(a.timeout) * time.Second}
+	//start := time.Now()
 	response, err := client.Do(req)
+	//duration := time.Since(start)
+	//log.Printf("%s 请求时间：%d", a.base_url, duration)
 	if err != nil {
 		return nil, err
 	}

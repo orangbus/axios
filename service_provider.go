@@ -20,7 +20,7 @@ func (receiver *ServiceProvider) Register(app foundation.Application) {
 }
 
 func (receiver *ServiceProvider) Boot(app foundation.Application) {
-	app.Publishes("github.com/orangbus/goravel-axios", map[string]string{
+	app.Publishes("github.com/orangbus/axios", map[string]string{
 		"config/axios.go": app.ConfigPath("axios.go"),
 	})
 }
